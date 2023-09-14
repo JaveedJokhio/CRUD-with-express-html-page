@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Testing</title>
+</head>
+
+<body>
+    <h1>Save Data</h1>
+    <form id="saveDataForm">
+        <input type="text" id="idInputt" name="id" placeholder="id">
+        <input type="text" id="nameInput" name="name" placeholder="Name">
+        <input type="text" id="emailInput" name="email" placeholder="Email">
+        <button type="submit">Save Data</button>
+    </form>
+
+    <h1>Delete Data</h1>
+    <form id="deleteDataForm">
+        <input type="text" id="deleteIdInput" name="id" placeholder="Enter ID to Delete">
+        <button type="submit">Delete Data</button>
+    </form>
+
+    <h1>Get Data by ID</h1>
+    <form id="getDataForm">
+        <input type="text" id="idInput" name="id" placeholder="Enter ID">
+        <button type="submit">Get Data</button>
+    </form>
+    <div id="dataContainer">
+        <!-- Data will be displayed here -->
+    </div>
+
+    <h1>Get All Data</h1>
+    <button id="getAllDataButton">Get All Data</button>
+
+    <script>
+        const getDataForm = document.getElementById('getDataForm');
+        const idInput = document.getElementById('idInput');
+        const dataContainer = document.getElementById('dataContainer');
+        const getAllDataButton = document.getElementById('getAllDataButton');
+
+        getDataForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = idInput.value;
+
+            try {
+                // Use the entered ID to construct the URL
+                const response = await fetch(`http://localhost:3000/api/user/${id}`);
+                if (response.ok) {
+                    const data = await response.json(); // Parse the JSON response
+
+                    // Create HTML elements to display the data
+                    const idElement = document.createElement('p');
+                    idElement.textContent = `ID: ${data.id}`;
+                    const nameElement = document.createElement('p');
+                    nameElement.textContent = `Name: ${data.name}`;
+                    const emailElement = document.createElement('p');
+                    emailElement.textContent = `Email: ${data.email}`;
+
+                    // Clear the previous content and append the new elements
+                    dataContainer.innerHTML = '';
+                    dataContainer.appendChild(idElement);
+                    dataContainer.appendChild(nameElement);
+                    dataContainer.appendChild(emailElement);
+
+                } else {
+                    dataContainer.innerHTML = 'Data not found';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+        getAllDataButton.addEventListener('click', async () => {
+            try {
+                // Fetch all data
+                const response = await fetch(`http://localhost:3000/alldata`);
+                if (response.ok) {
+                    const data = await response.text(); // Parse the response as text, not JSON
+
+                    // Display the data as-is
+                    dataContainer.textContent = data;
+                } else {
+                    dataContainer.innerHTML = 'Data not found from client';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+        // Save data code
+
+        const saveDataForm = document.getElementById('saveDataForm');
+
+        saveDataForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+           
+            const idInputt = parseInt(document.getElementById('idInputt').value);
+            const nameInput = document.getElementById('nameInput').value;
+            const emailInput = document.getElementById('emailInput').value;
+
+            try {
+                const response = await fetch('http://localhost:3000/api/user/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: idInputt, name: nameInput, email: emailInput })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert(result.message);
+                } else {
+                    alert('Failed to save data');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+
+        // Delete data
+        const deleteDataForm = document.getElementById('deleteDataForm');
+    const deleteIdInput = document.getElementById('deleteIdInput');
+
+    deleteDataForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = deleteIdInput.value;
+
+        try {
+            // Use the entered ID to construct the URL for deletion
+            const response = await fetch(`http://localhost:3000/api/user/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                alert(result.message);
+            } else {
+                alert('Failed to delete data');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+    </script>
+</body>
+
+</html>
